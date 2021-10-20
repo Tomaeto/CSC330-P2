@@ -32,15 +32,18 @@
 	   (loop for c across line
 		do(progn
 		;;removing each number found in line
+		;;decrements charindex since line has 1 less character
 		(if (and (char<= c #\9) (char>= c #\0))
-		     (setq line (remove c line)))
+		     (progn
+			(setq line (remove c line))
+			(decf charindex)))
 		;;removing extra spaces, uses charindex to track c and find extra space
 		;;decrements charindex since line has 1 less character
 		(if (and (char= lastchar #\ ) (char= c #\ ))
 		     (progn
 		     (setq line (delete #\  line :start (- charindex 2) :count 1))
 		     (decf charindex)))
-
+		
 		(setq lastchar c)
 		(incf charindex)
 		  )	
@@ -58,7 +61,6 @@
 )
 ;;Creating list of all words in input file
 ;;Used to build formatted lines of output
-(write linelist)
 (defvar wordlist)
 (setq wordlist '())
 (defvar linespace)
@@ -71,25 +73,18 @@
 	   (setq linespace (search " " line)) 
 	   (loop while (not (null linespace))
 		do (progn
-		(write-line line)
 		 (setq tempword (subseq line 0 linespace))
 		 (push tempword wordlist)
-		 (setq line (string-trim tempword line))
+		 (setq line (string-left-trim tempword line))
 		 (setq line (delete #\  line :count 1))
-		 (setq linespace (search " " line))
-		 
-		)
-	)
-	
-	 ;  (push line wordlist)
-	   ))  
+		 (setq linespace (search " " line))))
+	   (push line wordlist)))  
 ;;Reverse wordlist so list pops words in order
 (setq wordlist (reverse wordlist))
 ;;Building formatted lines of text w/ line number and 60 characters max
 (defvar templine)
 (setq templine "")
 (defvar tempword)
-(write wordlist)
 (setq tempword (pop wordlist))
 
 (loop while (/= (length wordlist) 0)
@@ -111,6 +106,6 @@
 	(setq templine (concatenate 'string templine tempword))
 	(push templine longlist)))
 (setq longlist (reverse longlist))
-;(loop for line in longlist
-;	do(progn
-;	(write-line line)))
+(loop for line in longlist
+	do(progn
+	(write-line line)))
