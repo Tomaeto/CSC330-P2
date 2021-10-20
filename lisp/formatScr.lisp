@@ -1,14 +1,19 @@
 #!/usr/bin/sbcl --script
-
+;;Program for printing formatted text from input file
+;;For a given input text file, removes numbers and extra spaces,
+;;	prints lines w/ right-justified line number and max
+;;	60 chars w/o words cutting across lines
+;;Also prints longest and shortest lines w/ left-justified line numbers
+;;
+;;By Adrian Faircloth
+;;10-18-21
+;;
 ;;Function for getting lines from input file
 (defun get-file (filename)
 	(with-open-file (stream filename)
 		(loop for line = (read-line stream nil)
 			while line 
-			collect line
-		)
-	)
-)
+			collect line)))
 
 			
 (defvar filename)
@@ -46,13 +51,9 @@
 		     (decf charindex)))
 		
 		(setq lastchar c)
-		(incf charindex)
-		  )	
-	   )	
+		(incf charindex)))	
 		;;adding formatted line to linelist
-		(push line linelist)	
-	  )
-)
+		(push line linelist)))
 ;;removing empty string from linelist
 (setq linelist (reverse linelist))
 (setq linelist (cdr linelist))
