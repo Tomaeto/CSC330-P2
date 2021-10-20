@@ -9,7 +9,8 @@
 		)
 	)
 )
-;;TODO: Make functions for checking for longest and shortest lines
+
+			
 (defvar filename)
 (defvar longlist)
 ;;creating string list to hold partly-formatted lines
@@ -112,10 +113,8 @@
 			(progn
 			(setq longest-line templine)
 			(setq mostwords numwords)))
-		(if (= numwords mostwords)
-			(progn
-			(if (> (length longest-line) (length templine))
-				(setq longest-line templine))))
+		(if (and (= numwords mostwords) (> (length longest-line) (length templine)))
+			(setq longest-line templine))
 		;;If current line has fewer words than last found
 		;;	shortest line, then store new shortest line
 		;;If there is a tie, stores line w/ least chars
@@ -123,10 +122,8 @@
 			(progn
 			(setq shortest-line templine)
 			(setq leastwords numwords)))
-		(if (= numwords leastwords)
-			(progn
-			(if (> (length shortest-line) (length templine))
-				(setq shortest-line templine))))
+		(if (and (= numwords leastwords) (> (length shortest-line) (length templine)))
+			(setq shortest-line templine))
 				
 		(setq numwords 0)
 		(setq templine "")))
@@ -138,29 +135,30 @@
 	  (if (< (length templine) 60)
 	  	(setq templine (concatenate 'string templine " ")))
 	  (setq tempword (pop wordlist))))
+
 ;;After popping final word from wordlist, adds word to line if it
 ;;	fits and pushes line
 ;;If word does not fit, pushes current line then pushes final word
 (if (>= (+ (length templine) (length tempword)) 60)
+	;;If word does not fit in line, checks if current line is
+	;;	longest or shortest and pushes line
 	(progn
 	(push templine longlist)
 	(if (> numwords mostwords)
 		(progn
 		(setq longest-line templine)
 		(setq mostwords numwords)))
-	(if (= numwords mostwords)
-		(progn
-		(if (> (length longest-line) (length templine))
-			(setq longest-line templine))))
+	(if (and (= numwords mostwords) (> (length longest-line) (length templine)))
+		(setq longest-line templine))
 	(if (or (= leastwords 0) (< numwords leastwords))
 		(progn
 		(setq shortest-line templine)
 		(setq leastwords numwords)))
-	(if (= numwords leastwords)
-		(progn
-		(if (> (length shortest-line) (length templine))
-			(setq shortest-line templine))))
+	(if (and (= numwords leastwords) (> (length shortest-line) (length templine)))
+		(setq shortest-line templine))
 	(setq templine tempword)
+	;;Final line has 1 word, checks if that is shortest line
+	;;	if it is a tie, stores line w/ fewer characters
 		(if (< 1 leastwords)
 			(setq shortest-line templine))
 		(if (= 1 leastwords)
@@ -168,7 +166,8 @@
 			(if (> (length shortest-line) (length templine))
 				(setq shortest-line templine))))
 	(push templine longlist))
-
+	;;If word does fit in line, adds word to line, checks if line is
+	;;	longest or shortest and pushes line
 	(progn
 	(setq templine (concatenate 'string templine tempword))
 	(push templine longlist)
@@ -178,3 +177,41 @@
 		(setq shortest-line templine))))
 ;;Reversing longlist so lines are in order
 (setq longlist (reverse longlist))
+;;Printing lines w/ line number
+;;Line number right-justified to col 8,
+;;	line output begins on col 11.
+(defvar linenum)
+(defvar num-str)
+(defvar longest-numstr)
+(setq longest-numstr "LONG   ")
+(defvar shortest-numstr)
+(setq shortest-numstr "SHORT  ")
+(setq linenum 1)
+(loop for line in longlist
+	do(progn
+	(setq num-str (write-to-string linenum))
+	;;Adding spaces to the front of num-str until the end reaches column 8
+	;;Simulates right-justification of line number
+	(loop while (< (length num-str) 8)
+		do(setq num-str (concatenate 'string " " num-str)))
+	;;When the current line is the longest or shortest line, line number
+	;;	is added to corresponding string, left-justified to col 8
+	(if (string= line longest-line)
+		(setq longest-numstr (concatenate 'string longest-numstr (write-to-string linenum))))
+	(if (string= line shortest-line)
+		(setq shortest-numstr (concatenate 'string shortest-numstr (write-to-string linenum))))
+	;;Adding spaces to num-str to start line ouput on col 11
+	(setq num-str (concatenate 'string num-str "  "))
+	(write-line (concatenate 'string num-str line))
+	(incf linenum)))
+;;Printing empty line
+(write-line " ")
+;;Adding spaces to end of strings for longest and shortest line numbers
+;;	so that line output begins on col 21
+(loop while (/= (length longest-numstr) 20)
+	do(setq longest-numstr (concatenate 'string longest-numstr " ")))
+(loop while (/= (length shortest-numstr) 20)
+	do(setq shortest-numstr (concatenate 'string shortest-numstr " ")))
+;;Printing longest and shortest lines w/ line number
+(write-line (concatenate 'string longest-numstr longest-line))
+(write-line (concatenate 'string shortest-numstr shortest-line))
