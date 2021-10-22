@@ -1,5 +1,12 @@
 #!/usr/bin/julia
 
+#Program for printing formatted text from input text file
+#Removes numbers and extra spaces from input lines, output lines have max of
+#	60 chars w/o cutting words up across lines.
+#Also outputs lines w/ greatest and least number of words.
+#By Adrian Faircloth
+#10-21-21
+
    #Getting user input for input text file path and initializing array for
    #	holding lines from file
    print("Enter input file path: ")
