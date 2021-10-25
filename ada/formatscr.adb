@@ -4,6 +4,12 @@ with Ada.Strings;		use Ada.Strings;
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Text_IO.Unbounded_IO;	use Text_IO.Unbounded_IO;
 with Ada.Containers.Vectors;	use Ada.Containers;
+--Program for printing formatted lines from an input text file
+--Removes numbers and extra spaces, prints lines w/ right-justified line 
+--	number and max of 60 chars w/o splitting words across lines
+--Also prints lines w/ most and least words w/ left-justified line numbers
+--By Adrian Faircloth
+--10/24/21
    procedure formatScr is
 	
 	infile : Ada.Text_IO.File_Type;
@@ -23,6 +29,10 @@ with Ada.Containers.Vectors;	use Ada.Containers;
 	mostLine : Unbounded_String;
 	leastnum : Integer;
 	leastLine : Unbounded_String;
+	linenum : Integer;
+	leastLinenum : Integer;
+	mostLinenum : Integer;
+	linenum_str : Unbounded_String;
   begin
 	--Getting user input for input file
 	Put("Enter input file path: ");
@@ -120,12 +130,46 @@ with Ada.Containers.Vectors;	use Ada.Containers;
 		leastLine := line;
 		leastnum := numwords;
 	end if;
-	--Testing if lines were built correctly
+	--Printing formatted lines w/ line number right-justified to col 8
+	--	and output starting on col 11
+	--Also finding and storing line num for longest & shortest lines
+	linenum := 0;
+	mostLinenum := 0;
+	leastLinenum := 0;
 	for i in 1..lines.length loop
+		linenum := linenum + 1;
+		linenum_str := To_Unbounded_String(Integer'Image(linenum));
+		--Adding spaces to start of linenum_str until it reaches col 8
+		--Right-justifies line number
+		while Length(linenum_str) < 8 loop
+			Insert(linenum_str, 1, " ");
+		end loop;
+		Append(linenum_str, "  ");
+		Put(linenum_str);
 		Put_Line(lines.First_Element);
+		if lines.First_Element = mostLine then
+			mostLinenum := linenum;
+		elsif lines.First_Element = leastLine then
+			leastLinenum := linenum;
+		end if;
 		lines.Delete_First;
 	end loop;
+	--Printing lines w/ most and least number of words w/ line number left-justified
+	--	to col 8 and w/ output starting on line 21
 	Put_Line(" ");
+	linenum_str := To_Unbounded_String("LONG  ");
+	Append(linenum_str, To_Unbounded_String(Integer'Image(mostLinenum)));
+	while Length(linenum_str) < 20 loop
+		Append(linenum_str, " ");
+	end loop;
+	Put(linenum_str);
 	Put_Line(mostLine);
+	
+	linenum_str := To_Unbounded_String("SHORT ");
+	Append(linenum_str, To_Unbounded_String(Integer'Image(leastLinenum)));
+	while Length(linenum_str) < 20 loop
+		Append (linenum_str, " ");
+	end loop;
+	Put(linenum_str);
 	Put_Line(leastLine);
   end formatScr;
