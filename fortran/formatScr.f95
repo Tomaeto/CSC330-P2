@@ -1,13 +1,17 @@
       program formatScr
-      
+      !Program for outputting formatted text from input file
+      !Removes numbers and extra spaces, prints lines w/ max of
+      !        60 characters w/o splitting words across lines
+      !By Adrian Faircloth
         character, dimension(:), allocatable :: filestring
         character (LEN = 500) :: filename
         integer :: filesize
         character :: lastchar, currchar
-        integer :: spaceptr, numextras, numlines, counter
+        integer :: numextras, numlines, counter, spaceptr
         logical :: spacefound
         
       interface
+      !Defining variables for subroutines and functions
       subroutine read_file(filestring, filesize, filename)
         character, dimension(:), allocatable :: filestring
         character (LEN = 500) :: filename
@@ -23,7 +27,7 @@
         character :: currch, lastch
       end function isDoubleSpace
       end interface
-        
+      !Getting user input for input file path  
         print *, "Enter input file path: "
         read *, filename
         call read_file(filestring, filesize, filename)
@@ -31,7 +35,12 @@
         currchar = ''
         numextras = 0
         numlines = 1
-        do i=1, size(filestring)     
+       !Printing lines from input file, skipping numbers and
+       !        extra spaces
+       !Counts skipped characters to ensure printed lines are
+       !        the proper length
+        do i=1, size(filestring) 
+       !Replacing newline characters with spaces    
            if (filestring(i) .eq. achar(10)) then
                filestring(i) = ' '
            end if
@@ -42,17 +51,20 @@
                if (isDoubleSpace(currchar, lastchar) .eqv. .true.) then
                    numextras = numextras + 1
                else
+                !Finding next space in line to check if next word can
+                !       fit in the current line
                    spacefound = .false.
                    counter = 1
                    do while (spacefound .eqv. .false.)
                           if (filestring(i+counter) .eq. achar(32)) then
-                              spaceptr = counter
                               spacefound = .true.
+                              spaceptr = counter
                           else
                               counter = counter + 1
                           end if
                           if (i + counter .ge. size(filestring)) then
                               spaceptr = 0
+                     
                               spacefound = .true.
                           end if
                    end do
@@ -60,7 +72,9 @@
                        write (*, fmt = "(a)", advance = "no") currchar
                end if
            end if
-           if ((i/numlines) + spaceptr .gt. (61 + numextras)) then
+           !If the length of the line + the next word exceeds 60, then
+           !    print a new line and reset counters
+           if ((i/numlines) + counter .gt. (61 + numextras)) then
                 print *, ""
                 numextras = 1
                 numlines = numlines + 1
@@ -69,6 +83,8 @@
         end do
       end program formatScr
 
+      !Subroutine for reading input file
+      !Stores text from input file in an allocatable string
       subroutine read_file(string, filesize, filename)
         character, dimension(:), allocatable :: string
         character (LEN = 500) :: filename
@@ -90,6 +106,7 @@
         
       end subroutine read_file 
       
+      !Function for checking if a character is a number
       logical function isNum(ch) result(out)
         character :: ch
         logical :: gtzero, ltnine
@@ -101,6 +118,9 @@
         end if
       end function isNum
 
+      !Function for checking if string has a double space
+      !Takes last and current characters as input, and if both are
+      !        spaces, returns true
       logical function isDoubleSpace(lastch, currch) result(out)
         character :: lastch, currch
         out = .false.
