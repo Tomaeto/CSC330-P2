@@ -7,7 +7,7 @@
         character (LEN = 500) :: filename
         integer :: filesize
         character :: lastchar, currchar
-        integer :: numextras, numlines, counter, spaceptr
+        integer :: counter, spaceptr, numprinted
         logical :: spacefound
         
       interface
@@ -33,12 +33,11 @@
         call read_file(filestring, filesize, filename)
         lastchar = ''
         currchar = ''
-        numextras = 0
-        numlines = 1
+        numprinted = 0
        !Printing lines from input file, skipping numbers and
        !        extra spaces
-       !Counts skipped characters to ensure printed lines are
-       !        the proper length
+       !Counts printed characters to ensure lines are the proper
+       !        length
         do i=1, size(filestring) 
        !Replacing newline characters with spaces    
            if (filestring(i) .eq. achar(10)) then
@@ -46,10 +45,10 @@
            end if
            currchar = filestring(i)
            if (isNum(currchar) .eqv. .true.) then
-               numextras = numextras + 1
+               !Skips character if it is a number
            else
                if (isDoubleSpace(currchar, lastchar) .eqv. .true.) then
-                   numextras = numextras + 1
+                !Skips character if there is a double space in the text
                else
                 !Finding next space in line to check if next word can
                 !       fit in the current line
@@ -62,22 +61,22 @@
                           else
                               counter = counter + 1
                           end if
+                !If there is no space left in line, sets pointer to 0
                           if (i + counter .ge. size(filestring)) then
-                              spaceptr = 0
-                     
+                              spaceptr = 0  
                               spacefound = .true.
                           end if
                    end do
             
                        write (*, fmt = "(a)", advance = "no") currchar
+                       numprinted = numprinted+1
                end if
            end if
            !If the length of the line + the next word exceeds 60, then
            !    print a new line and reset counters
-           if ((i/numlines) + counter .gt. (61 + numextras)) then
+           if (numprinted+spaceptr .gt. 61) then
                 print *, ""
-                numextras = 1
-                numlines = numlines + 1
+                numprinted = 0
            end if
            lastchar = currchar
         end do
