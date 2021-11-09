@@ -61,8 +61,7 @@ with Ada.Containers.Vectors;	use Ada.Containers;
 		str_arr(pos) := ' ';
 	end if;
 	lastval := value;
-    end loop;
-
+    end loop; 
     --Getting all words from array and putting them into vector
     --Finds spaces and gets all characters b/w spaces to get words
     arr_pos := 1;
@@ -172,4 +171,6 @@ with Ada.Containers.Vectors;	use Ada.Containers;
 	end loop;
 	Put(linenum_str);
 	Put_Line(leastLine);
+	exception
+		when Ada.IO_Exceptions.END_ERROR => Ada.Text_IO.Close (File => infile);
   end formatScr;
